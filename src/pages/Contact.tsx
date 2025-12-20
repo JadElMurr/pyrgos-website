@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, CheckCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -16,9 +15,7 @@ export default function Contact() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
 
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
@@ -26,13 +23,17 @@ export default function Contact() {
       newErrors.email = 'Please enter a valid email';
     }
 
-    if (!formData.message.trim()) {
-      newErrors.message = 'Message is required';
-    }
+    if (!formData.message.trim()) newErrors.message = 'Message is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  // Netlify Forms requires URL-encoded form body
+  const encode = (data: Record<string, string>) =>
+    Object.keys(data)
+      .map((key) => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+      .join('&');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,13 +41,26 @@ export default function Contact() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setErrors({});
 
     try {
-      const { error } = await supabase
-        .from('contact_submissions')
-        .insert([formData]);
+      const payload: Record<string, string> = {
+        'form-name': 'contact',
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+      };
 
-      if (error) throw error;
+      const res = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: encode(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Netlify form submission failed: ${res.status}`);
+      }
 
       setIsSuccess(true);
       setFormData({ name: '', email: '', phone: '', message: '' });
@@ -109,18 +123,41 @@ export default function Contact() {
                   <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0" />
                   <div>
                     <h3 className="font-semibold text-green-900 mb-1">Thank you!</h3>
-                    <p className="text-green-800 text-sm">We've received your message and will get back to you shortly.</p>
+                    <p className="text-green-800 text-sm">
+                      We've received your message and will get back to you shortly.
+                    </p>
                   </div>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Netlify Forms:
+                  - data-netlify="true" enables form handling
+                  - name must match 'form-name' above
+                  - hidden form-name input helps Netlify detect the form
+                  - honeypot prevents spam
+              */}
+              <form
+                name="contact"
+                method="POST"
+                data-netlify="true"
+                data-netlify-honeypot="bot-field"
+                onSubmit={handleSubmit}
+                className="space-y-6"
+              >
+                <input type="hidden" name="form-name" value="contact" />
+                <p className="hidden">
+                  <label>
+                    Don’t fill this out: <input name="bot-field" />
+                  </label>
+                </p>
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
                     Name *
                   </label>
                   <input
                     type="text"
+                    name="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className={`w-full px-4 py-3 border ${
@@ -137,6 +174,7 @@ export default function Contact() {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className={`w-full px-4 py-3 border ${
@@ -153,6 +191,7 @@ export default function Contact() {
                   </label>
                   <input
                     type="tel"
+                    name="phone"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-900"
@@ -165,6 +204,7 @@ export default function Contact() {
                     Message *
                   </label>
                   <textarea
+                    name="message"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     rows={6}
@@ -190,6 +230,10 @@ export default function Contact() {
                   {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
+
+              <p className="mt-4 text-xs text-gray-500">
+                This form is handled by Netlify (no database needed).
+              </p>
             </div>
           </div>
         </div>

@@ -1,44 +1,15 @@
-import { createClient } from '@supabase/supabase-js';
+// src/lib/supabase.ts
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+/**
+ * Supabase is OPTIONAL.
+ * If env vars are missing (Netlify, static deploy),
+ * the app will NOT crash.
+ */
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export interface Building {
-  id: string;
-  slug: string;
-  title: string;
-  location: string;
-  starting_price: number;
-  description: string;
-  images: string[];
-  created_at: string;
-}
-
-export interface Apartment {
-  id: string;
-  building_id: string;
-  slug: string;
-  title: string;
-  price: number;
-  size_m2: number;
-  bedrooms: number;
-  bathrooms: number;
-  floor: number;
-  description: string;
-  features: string[];
-  images: string[];
-  created_at: string;
-}
-
-export interface ContactSubmission {
-  name: string;
-  email: string;
-  phone?: string;
-  message: string;
-}
+export const supabase: SupabaseClient | null =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null;
