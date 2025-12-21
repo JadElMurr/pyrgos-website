@@ -1,64 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { MapPin, Euro, Bed, Bath, Maximize, ArrowLeft, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
-import { supabase, Building, Apartment } from '../lib/supabase';
+import { MapPin, Euro, ArrowLeft, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { buildings, apartments as allApartments, type Building, type Apartment } from '../data/pyrgosData';
 
 export default function BuildingDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const [building, setBuilding] = useState<Building | null>(null);
-  const [apartments, setApartments] = useState<Apartment[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  useEffect(() => {
-    if (slug) {
-      fetchBuilding();
-    }
+  const building: Building | null = useMemo(() => {
+    if (!slug) return null;
+    return buildings.find((b) => b.slug === slug) || null;
   }, [slug]);
 
-  const fetchBuilding = async () => {
-    try {
-      const { data: buildingData, error: buildingError } = await supabase
-        .from('buildings')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle();
+  const apartments: Apartment[] = useMemo(() => {
+    if (!slug) return [];
+    return allApartments
+      .filter((a) => a.buildingSlug === slug)
+      .slice()
+      // Keep stable order without relying on DB:
+      // If later you want: sort by floor label or size, we can.
+      ;
+  }, [slug]);
 
-      if (buildingError) throw buildingError;
-      if (!buildingData) {
-        setBuilding(null);
-        setLoading(false);
-        return;
-      }
-
-      setBuilding(buildingData);
-
-      const { data: apartmentData, error: apartmentError } = await supabase
-        .from('apartments')
-        .select('*')
-        .eq('building_id', buildingData.id)
-        .order('floor', { ascending: true });
-
-      if (apartmentError) throw apartmentError;
-      setApartments(apartmentData || []);
-    } catch (error) {
-      console.error('Error fetching building:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  if (loading) {
+  if (!slug) {
     return (
       <div className="pt-16 min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <div className="text-center">
+          <p className="text-gray-600 text-lg mb-6">Building not found</p>
+          <Link to="/projects" className="text-blue-900 font-semibold hover:text-blue-800">
+            Back to Projects
+          </Link>
+        </div>
       </div>
     );
   }
@@ -76,15 +48,19 @@ export default function BuildingDetail() {
     );
   }
 
-  const images = building.images.length > 0
-    ? building.images
-    : ['https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg'];
+  const images =
+    building.images && building.images.length > 0
+      ? building.images
+      : ['https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg'];
 
   return (
     <div className="pt-16">
       {/* Back Link */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-        <Link to="/projects" className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all">
+        <Link
+          to="/projects"
+          className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all"
+        >
           <ArrowLeft className="h-5 w-5" />
           <span>Back to Projects</span>
         </Link>
@@ -168,9 +144,7 @@ export default function BuildingDetail() {
                   <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-3">Starting Price</p>
                   <div className="flex items-baseline gap-2">
                     <Euro className="h-6 w-6 text-blue-900" />
-                    <span className="text-4xl font-bold text-gray-900">
-                      {formatPrice(building.starting_price)}
-                    </span>
+                    <span className="text-4xl font-bold text-gray-900">{building.startingPriceText}</span>
                   </div>
                 </div>
                 <div className="border-t pt-4">
@@ -201,11 +175,14 @@ export default function BuildingDetail() {
                   {/* Cover Image */}
                   <div className="relative h-56 bg-gray-200 overflow-hidden">
                     <img
-                      src={apartment.images[0] || 'https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg'}
+                      src={
+                        apartment.images?.[0] ||
+                        'https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg'
+                      }
                       alt={apartment.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    {apartment.images.length > 1 && (
+                    {!!apartment.images?.length && apartment.images.length > 1 && (
                       <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                         {apartment.images.length} photos
                       </div>
@@ -219,33 +196,33 @@ export default function BuildingDetail() {
                     {/* Price */}
                     <div className="flex items-baseline gap-2 mb-4">
                       <Euro className="h-5 w-5 text-blue-900" />
-                      <span className="text-2xl font-bold text-gray-900">
-                        {formatPrice(apartment.price)}
-                      </span>
+                      <span className="text-2xl font-bold text-gray-900">{apartment.priceText}</span>
                     </div>
 
                     {/* Key Specs */}
                     <div className="grid grid-cols-4 gap-3 mb-4 pb-4 border-b border-gray-200 text-xs">
                       <div>
                         <p className="text-gray-600 font-semibold mb-1">Size</p>
-                        <p className="font-bold text-gray-900">{apartment.size_m2}m²</p>
+                        <p className="font-bold text-gray-900">
+                          {typeof apartment.sizeInteriorSqm === 'number' ? `${apartment.sizeInteriorSqm}m²` : '—'}
+                        </p>
                       </div>
                       <div>
                         <p className="text-gray-600 font-semibold mb-1">Beds</p>
-                        <p className="font-bold text-gray-900">{apartment.bedrooms}</p>
+                        <p className="font-bold text-gray-900">{typeof apartment.beds === 'number' ? apartment.beds : '—'}</p>
                       </div>
                       <div>
                         <p className="text-gray-600 font-semibold mb-1">Baths</p>
-                        <p className="font-bold text-gray-900">{apartment.bathrooms}</p>
+                        <p className="font-bold text-gray-900">{typeof apartment.baths === 'number' ? apartment.baths : '—'}</p>
                       </div>
                       <div>
                         <p className="text-gray-600 font-semibold mb-1">Floor</p>
-                        <p className="font-bold text-gray-900">{apartment.floor}</p>
+                        <p className="font-bold text-gray-900">{apartment.floorLabel || '—'}</p>
                       </div>
                     </div>
 
                     {/* Features */}
-                    {apartment.features.length > 0 && (
+                    {apartment.features && apartment.features.length > 0 && (
                       <div className="mb-6">
                         <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">Features</p>
                         <ul className="space-y-1">
@@ -260,7 +237,7 @@ export default function BuildingDetail() {
 
                     {/* CTA */}
                     <Link
-                      to={`/projects/${slug}/apartments/${apartment.slug}`}
+                      to={`/projects/${building.slug}/apartments/${apartment.slug}`}
                       className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all group/link w-full justify-between"
                     >
                       <span>View Apartment</span>

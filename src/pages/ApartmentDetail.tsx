@@ -1,64 +1,58 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { ArrowLeft, MapPin, Euro, Bed, Bath, Maximize, Building as BuildingIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase, Building, Apartment } from '../lib/supabase';
+import {
+  ArrowLeft,
+  Euro,
+  Bed,
+  Bath,
+  Maximize,
+  Building as BuildingIcon,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import { buildings, apartments as allApartments, type Building, type Apartment } from '../data/pyrgosData';
 
 export default function ApartmentDetail() {
   const { slug: buildingSlug, apartmentSlug } = useParams<{ slug: string; apartmentSlug: string }>();
-  const [building, setBuilding] = useState<Building | null>(null);
-  const [apartment, setApartment] = useState<Apartment | null>(null);
-  const [loading, setLoading] = useState(true);
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  useEffect(() => {
-    if (buildingSlug && apartmentSlug) {
-      fetchData();
-    }
+  const building: Building | null = useMemo(() => {
+    if (!buildingSlug) return null;
+    return buildings.find((b) => b.slug === buildingSlug) || null;
+  }, [buildingSlug]);
+
+  const apartment: Apartment | null = useMemo(() => {
+    if (!buildingSlug || !apartmentSlug) return null;
+    return (
+      allApartments.find((a) => a.buildingSlug === buildingSlug && a.slug === apartmentSlug) || null
+    );
   }, [buildingSlug, apartmentSlug]);
 
-  const fetchData = async () => {
-    try {
-      const { data: buildingData, error: buildingError } = await supabase
-        .from('buildings')
-        .select('*')
-        .eq('slug', buildingSlug)
-        .maybeSingle();
+  // When the apartment changes, make sure the gallery index is valid
+  // (e.g., when navigating between apartments)
+  const images = apartment?.images && apartment.images.length > 0
+    ? apartment.images
+    : ['https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg'];
 
-      if (buildingError) throw buildingError;
-      if (!buildingData) {
-        setLoading(false);
-        return;
-      }
+  // Guard against stale index when switching apartments
+  const safeImageIndex = currentImageIndex >= images.length ? 0 : currentImageIndex;
+  if (safeImageIndex !== currentImageIndex) {
+    // setState inside render is usually bad, but this specific guard avoids breaking UI
+    // in edge cases. If you prefer, we can convert to useEffect.
+    setCurrentImageIndex(0);
+  }
 
-      setBuilding(buildingData);
-
-      const { data: apartmentData, error: apartmentError } = await supabase
-        .from('apartments')
-        .select('*')
-        .eq('building_id', buildingData.id)
-        .eq('slug', apartmentSlug)
-        .maybeSingle();
-
-      if (apartmentError) throw apartmentError;
-      setApartment(apartmentData);
-    } catch (error) {
-      console.error('Error fetching apartment:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  if (loading) {
+  // Loading state is no longer needed (no async fetch), but keeping the UI behavior clean:
+  if (!buildingSlug || !apartmentSlug) {
     return (
       <div className="pt-16 min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <div className="text-center">
+          <p className="text-gray-600 text-lg mb-6">Apartment not found</p>
+          <Link to="/projects" className="text-blue-900 font-semibold hover:text-blue-800">
+            Back to Projects
+          </Link>
+        </div>
       </div>
     );
   }
@@ -76,19 +70,22 @@ export default function ApartmentDetail() {
     );
   }
 
-  const images = apartment.images.length > 0
-    ? apartment.images
-    : ['https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg'];
-
   return (
     <div className="pt-16">
       {/* Breadcrumb */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4 space-y-2">
-        <Link to="/projects" className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all">
+        <Link
+          to="/projects"
+          className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all"
+        >
           <ArrowLeft className="h-5 w-5" />
           <span>Back to Projects</span>
         </Link>
-        <Link to={`/projects/${buildingSlug}`} className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all ml-6">
+
+        <Link
+          to={`/projects/${buildingSlug}`}
+          className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all ml-6"
+        >
           <ArrowLeft className="h-5 w-5" />
           <span>Back to {building.title}</span>
         </Link>
@@ -112,12 +109,14 @@ export default function ApartmentDetail() {
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
+
               <button
                 onClick={() => setCurrentImageIndex((i) => (i + 1) % images.length)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
+
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-4 py-2 rounded">
                 {currentImageIndex + 1} / {images.length}
               </div>
@@ -155,15 +154,11 @@ export default function ApartmentDetail() {
 
             <div className="flex items-baseline gap-2 mb-8">
               <Euro className="h-7 w-7 text-blue-900" />
-              <span className="text-5xl font-bold text-gray-900">
-                {formatPrice(apartment.price)}
-              </span>
+              <span className="text-5xl font-bold text-gray-900">{apartment.priceText}</span>
             </div>
 
             {apartment.description && (
-              <p className="text-lg text-gray-700 leading-relaxed">
-                {apartment.description}
-              </p>
+              <p className="text-lg text-gray-700 leading-relaxed">{apartment.description}</p>
             )}
           </div>
 
@@ -174,9 +169,7 @@ export default function ApartmentDetail() {
                 {/* Price */}
                 <div>
                   <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">Price</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {formatPrice(apartment.price)}
-                  </p>
+                  <p className="text-3xl font-bold text-gray-900">{apartment.priceText}</p>
                 </div>
 
                 {/* Specs Grid */}
@@ -185,19 +178,25 @@ export default function ApartmentDetail() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Size</p>
-                      <p className="text-xl font-bold text-gray-900">{apartment.size_m2}m²</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {typeof apartment.sizeInteriorSqm === 'number' ? `${apartment.sizeInteriorSqm}m²` : '—'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Bedrooms</p>
-                      <p className="text-xl font-bold text-gray-900">{apartment.bedrooms}</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {typeof apartment.beds === 'number' ? apartment.beds : '—'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Bathrooms</p>
-                      <p className="text-xl font-bold text-gray-900">{apartment.bathrooms}</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {typeof apartment.baths === 'number' ? apartment.baths : '—'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Floor</p>
-                      <p className="text-xl font-bold text-gray-900">{apartment.floor}</p>
+                      <p className="text-xl font-bold text-gray-900">{apartment.floorLabel || '—'}</p>
                     </div>
                   </div>
                 </div>
@@ -248,7 +247,9 @@ export default function ApartmentDetail() {
                 <Maximize className="h-6 w-6 text-blue-900 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Living Space</p>
-                  <p className="text-2xl font-bold text-gray-900">{apartment.size_m2} m²</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {typeof apartment.sizeInteriorSqm === 'number' ? `${apartment.sizeInteriorSqm} m²` : '—'}
+                  </p>
                 </div>
               </div>
 
@@ -256,7 +257,9 @@ export default function ApartmentDetail() {
                 <Bed className="h-6 w-6 text-blue-900 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Bedrooms</p>
-                  <p className="text-2xl font-bold text-gray-900">{apartment.bedrooms}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {typeof apartment.beds === 'number' ? apartment.beds : '—'}
+                  </p>
                 </div>
               </div>
 
@@ -264,7 +267,9 @@ export default function ApartmentDetail() {
                 <Bath className="h-6 w-6 text-blue-900 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Bathrooms</p>
-                  <p className="text-2xl font-bold text-gray-900">{apartment.bathrooms}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {typeof apartment.baths === 'number' ? apartment.baths : '—'}
+                  </p>
                 </div>
               </div>
 
@@ -272,7 +277,7 @@ export default function ApartmentDetail() {
                 <BuildingIcon className="h-6 w-6 text-blue-900 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Floor Level</p>
-                  <p className="text-2xl font-bold text-gray-900">Floor {apartment.floor}</p>
+                  <p className="text-2xl font-bold text-gray-900">{apartment.floorLabel || '—'}</p>
                 </div>
               </div>
             </div>

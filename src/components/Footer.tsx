@@ -45,13 +45,33 @@ export default function Footer() {
                 <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <span className="text-gray-300">Athens, Greece</span>
               </li>
+
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <span className="text-gray-300">+30 210 123 4567</span>
+                <div className="flex flex-col gap-1">
+                  <a
+                    href="tel:+306986108962"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    +30 698 610 8962
+                  </a>
+                  <a
+                    href="tel:+306945284162"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    +30 694 528 4162
+                  </a>
+                </div>
               </li>
+
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <span className="text-gray-300">info@pyrgos.com</span>
+                <a
+                  href="mailto:pyrgosdio@gmail.com"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  pyrgosdio@gmail.com
+                </a>
               </li>
             </ul>
           </div>
