@@ -1,6 +1,7 @@
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router';
-import Logo from './Logo';
+import logo from '../assets/pyrgos-logo.png';
+import { siteConfig } from '../data/pyrgosData';
 
 export default function Footer() {
   return (
@@ -8,12 +9,13 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <Logo className="h-8 w-8 text-white" />
-              <span className="text-xl font-bold text-white tracking-wide">PYRGOS</span>
-            </div>
+            <img
+              src={logo}
+              alt={siteConfig.companyName}
+              className="h-20 w-auto mb-4 bg-white/95 rounded-md p-2"
+            />
             <p className="text-gray-300 text-sm leading-relaxed max-w-md">
-              Delivering well-designed residential projects with meticulous attention to quality, planning, and execution.
+              {siteConfig.tagline}
             </p>
           </div>
 
@@ -21,19 +23,13 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wide">Navigation</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/about" className="text-gray-300 hover:text-white transition-colors">
-                  About
-                </Link>
+                <Link to="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
               </li>
               <li>
-                <Link to="/projects" className="text-gray-300 hover:text-white transition-colors">
-                  Projects
-                </Link>
+                <Link to="/projects" className="text-gray-300 hover:text-white transition-colors">Projects</Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
-                  Contact
-                </Link>
+                <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
               </li>
             </ul>
           </div>
@@ -43,34 +39,31 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start space-x-2">
                 <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-300">Athens, Greece</span>
+                <span className="text-gray-300">{siteConfig.address}</span>
               </li>
 
-              <li className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
+              <li className="flex items-start space-x-2">
+                <Phone className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div className="flex flex-col gap-1">
-                  <a
-                    href="tel:+306986108962"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    +30 698 610 8962
-                  </a>
-                  <a
-                    href="tel:+306945284162"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    +30 694 528 4162
-                  </a>
+                  {siteConfig.phones.map((p) => (
+                    <a
+                      key={p.href}
+                      href={p.href}
+                      className="text-gray-300 hover:text-white transition-colors"
+                    >
+                      {p.label}: {p.display}
+                    </a>
+                  ))}
                 </div>
               </li>
 
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
                 <a
-                  href="mailto:pyrgosdio@gmail.com"
+                  href={`mailto:${siteConfig.email}`}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  pyrgosdio@gmail.com
+                  {siteConfig.email}
                 </a>
               </li>
             </ul>
@@ -78,7 +71,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-blue-800 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>© {new Date().getFullYear()} PYRGOS Development. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {siteConfig.companyName}. All rights reserved.</p>
         </div>
       </div>
     </footer>

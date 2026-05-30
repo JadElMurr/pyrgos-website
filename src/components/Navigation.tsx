@@ -1,7 +1,7 @@
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import Logo from './Logo';
+import logo from '../assets/pyrgos-logo.png';
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,9 +13,8 @@ export default function Navigation() {
     <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <Logo className="h-8 w-8 text-blue-900" />
-            <span className="text-xl font-bold text-blue-900 tracking-wide">PYRGOS</span>
+          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <img src={logo} alt="Pyrgos Real Estate" className="h-12 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
