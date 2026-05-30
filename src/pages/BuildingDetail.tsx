@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { ArrowLeft, BookOpen, Bed, Bath, Maximize, Expand } from 'lucide-react';
+import { ArrowLeft, BookOpen, Bed, Bath, Maximize } from 'lucide-react';
 import { buildings, apartments as allApartments, type Building, type Apartment } from '../data/pyrgosData';
 import Reveal from '../components/Reveal';
 import Lightbox from '../components/Lightbox';
 import ImageFrame from '../components/ImageFrame';
+import Gallery from '../components/Gallery';
 import BrochureViewer from '../components/BrochureViewer';
 
 export default function BuildingDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const [active, setActive] = useState(0);
   const [lb, setLb] = useState<{ imgs: string[]; idx: number } | null>(null);
   const [brochure, setBrochure] = useState(false);
 
@@ -62,19 +62,7 @@ export default function BuildingDetail() {
 
         {/* Gallery */}
         <Reveal>
-          <button onClick={() => setLb({ imgs: images, idx: active })} className="group relative w-full aspect-[4/3] overflow-hidden block">
-            <ImageFrame src={images[active]} alt={building.title} className="w-full h-full" eager />
-            <span className="absolute z-20 bottom-4 right-4 inline-flex items-center gap-2 bg-ink/70 text-ivory text-xs tracking-wide px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Expand className="h-4 w-4" /> View gallery
-            </span>
-          </button>
-          <div className="grid grid-cols-4 gap-3 mt-3">
-            {images.map((img, i) => (
-              <button key={i} onClick={() => setActive(i)} className={`aspect-[4/3] overflow-hidden transition-all ${active === i ? 'ring-2 ring-bronze' : 'opacity-60 hover:opacity-100'}`}>
-                <ImageFrame src={img} alt={`${building.title} ${i + 1}`} className="w-full h-full" blur={false} />
-              </button>
-            ))}
-          </div>
+          <Gallery images={images} alt={building.title} aspectClass="aspect-[4/3]" />
         </Reveal>
 
         {/* Title + intro */}

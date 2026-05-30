@@ -1,16 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { ArrowLeft, ArrowRight, Bed, Bath, Maximize, Car, Sun, Trees, Building as BuildingIcon, Expand } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bed, Bath, Maximize, Car, Sun, Trees, Building as BuildingIcon } from 'lucide-react';
 import { buildings, apartments as allApartments, type Building, type Apartment } from '../data/pyrgosData';
 import Reveal from '../components/Reveal';
 import Lightbox from '../components/Lightbox';
-import ImageFrame from '../components/ImageFrame';
+import Gallery from '../components/Gallery';
 
 type Spec = { icon: React.ElementType; label: string; value: string };
 
 export default function ApartmentDetail() {
   const { slug: buildingSlug, apartmentSlug } = useParams<{ slug: string; apartmentSlug: string }>();
-  const [active, setActive] = useState(0);
   const [lb, setLb] = useState<{ imgs: string[]; idx: number } | null>(null);
 
   const building: Building | null = useMemo(
@@ -65,23 +64,14 @@ export default function ApartmentDetail() {
 
         {/* Gallery (photos, or floor plan when no photography exists) */}
         <Reveal>
-          <button onClick={() => setLb({ imgs: hero, idx: active })} className="group relative w-full aspect-[4/3] md:aspect-[3/2] overflow-hidden block">
-            <ImageFrame src={hero[active]} alt={apartment.title} className="w-full h-full" eager imgClassName={sold ? 'grayscale-[25%]' : ''} />
-            {sold && <span className="absolute z-20 top-5 left-5 bg-ink text-ivory text-xs tracking-luxe uppercase px-4 py-2">Sold</span>}
-            {reserved && <span className="absolute z-20 top-5 left-5 bg-bronze text-ivory text-xs tracking-luxe uppercase px-4 py-2">Reserved</span>}
-            <span className="absolute z-20 bottom-4 right-4 inline-flex items-center gap-2 bg-ink/70 text-ivory text-xs tracking-wide px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Expand className="h-4 w-4" /> {heroIsPlan ? 'View larger' : 'View gallery'}
-            </span>
-          </button>
-          {hero.length > 1 && (
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mt-3">
-              {hero.map((img, i) => (
-                <button key={i} onClick={() => setActive(i)} className={`aspect-[4/3] overflow-hidden transition-all ${active === i ? 'ring-2 ring-bronze' : 'opacity-60 hover:opacity-100'}`}>
-                  <ImageFrame src={img} alt={`${apartment.title} ${i + 1}`} className="w-full h-full" blur={false} />
-                </button>
-              ))}
-            </div>
-          )}
+          <Gallery
+            images={hero}
+            alt={apartment.title}
+            aspectClass="aspect-[4/3] md:aspect-[3/2]"
+            label={heroIsPlan ? 'View larger' : 'View gallery'}
+            grayscale={sold}
+            badge={sold ? { text: 'Sold', tone: 'ink' } : reserved ? { text: 'Reserved', tone: 'bronze' } : undefined}
+          />
         </Reveal>
 
         {/* Title + specs */}
@@ -127,9 +117,9 @@ export default function ApartmentDetail() {
           </div>
 
           {/* Inquire card */}
-          <div className="lg:col-span-4 lg:col-start-9">
+          <div className="lg:col-span-4 lg:col-start-9 lg:sticky lg:top-28 self-start">
             <Reveal delay={120}>
-              <div className="lg:sticky lg:top-28 border border-line bg-paper p-8">
+              <div className="border border-line bg-paper p-8">
                 <p className="eyebrow mb-2">{sold ? 'Status' : 'Price'}</p>
                 <p className="font-display text-3xl text-ink mb-6">{apartment.priceText}</p>
                 <div className="space-y-3 text-sm border-t border-line pt-6 mb-8">

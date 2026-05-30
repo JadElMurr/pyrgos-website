@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { useSwipe } from '../hooks/useSwipe';
 
 export default function BrochureViewer({
   pdf,
@@ -19,6 +21,7 @@ export default function BrochureViewer({
 
   const prev = useCallback(() => setI((p) => (p - 1 + pages) % pages), [pages]);
   const next = useCallback(() => setI((p) => (p + 1) % pages), [pages]);
+  const swipe = useSwipe(next, prev);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -27,54 +30,59 @@ export default function BrochureViewer({
       if (e.key === 'ArrowRight') next();
     };
     window.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      document.body.style.overflow = prevOverflow;
     };
   }, [onClose, prev, next]);
 
-  return (
-    <div className="fixed inset-0 z-[100] bg-ink/95 backdrop-blur-sm flex flex-col">
+  const arrow =
+    'absolute top-1/2 -translate-y-1/2 h-12 w-12 inline-flex items-center justify-center rounded-full bg-ivory/10 text-ivory backdrop-blur-sm hover:bg-ivory/25 transition-colors';
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] bg-ink/95 backdrop-blur-sm flex flex-col" role="dialog" aria-modal="true">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-5 sm:px-8 py-4 text-ivory">
-        <span className="font-display text-lg">{title}</span>
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between px-5 sm:px-8 py-4 text-ivory flex-shrink-0">
+        <span className="font-display text-lg truncate pr-3">{title}</span>
+        <div className="flex items-center gap-3 flex-shrink-0">
           <a
             href={pdf}
             download
             className="inline-flex items-center gap-2 text-sm border border-ivory/40 px-4 py-2 hover:bg-ivory hover:text-ink transition-colors"
           >
-            <Download className="h-4 w-4" /> Download PDF
+            <Download className="h-4 w-4" /> <span className="hidden sm:inline">Download PDF</span><span className="sm:hidden">PDF</span>
           </a>
-          <button onClick={onClose} className="p-2 hover:opacity-70 transition-opacity" aria-label="Close">
+          <button onClick={onClose} className="p-2 -m-1 hover:opacity-70 transition-opacity" aria-label="Close">
             <X className="h-6 w-6" />
           </button>
         </div>
       </div>
 
       {/* Page */}
-      <div className="flex-1 flex items-center justify-center px-3 sm:px-16 min-h-0">
-        <button onClick={prev} className="absolute left-2 sm:left-6 p-3 text-ivory/70 hover:text-ivory transition-colors" aria-label="Previous page">
-          <ChevronLeft className="h-8 w-8" />
+      <div className="relative flex-1 flex items-center justify-center px-3 sm:px-24 min-h-0 select-none" {...swipe}>
+        <button onClick={prev} className={`${arrow} left-3 sm:left-6`} aria-label="Previous page">
+          <ChevronLeft className="h-7 w-7" />
         </button>
         <img
           src={pageUrl(i)}
           alt={`Brochure page ${i + 1}`}
           className="max-h-full max-w-full object-contain shadow-2xl bg-white"
         />
-        <button onClick={next} className="absolute right-2 sm:right-6 p-3 text-ivory/70 hover:text-ivory transition-colors" aria-label="Next page">
-          <ChevronRight className="h-8 w-8" />
+        <button onClick={next} className={`${arrow} right-3 sm:right-6`} aria-label="Next page">
+          <ChevronRight className="h-7 w-7" />
         </button>
       </div>
 
       {/* Thumbnail strip */}
-      <div className="px-4 py-4">
+      <div className="px-4 py-4 flex-shrink-0">
         <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-5xl mx-auto">
           {Array.from({ length: pages }).map((_, n) => (
             <button
               key={n}
               onClick={() => setI(n)}
+              aria-label={`Go to page ${n + 1}`}
               className={`flex-shrink-0 w-20 h-12 overflow-hidden border transition-all ${
                 i === n ? 'border-ivory opacity-100' : 'border-transparent opacity-50 hover:opacity-80'
               }`}
@@ -87,6 +95,7 @@ export default function BrochureViewer({
           {i + 1} / {pages}
         </p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
