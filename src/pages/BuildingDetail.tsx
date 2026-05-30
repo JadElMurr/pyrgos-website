@@ -1,255 +1,167 @@
 import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { MapPin, Euro, ArrowLeft, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { ArrowLeft, BookOpen, Bed, Bath, Maximize, Expand } from 'lucide-react';
 import { buildings, apartments as allApartments, type Building, type Apartment } from '../data/pyrgosData';
+import Reveal from '../components/Reveal';
+import Lightbox from '../components/Lightbox';
+import BrochureViewer from '../components/BrochureViewer';
 
 export default function BuildingDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [active, setActive] = useState(0);
+  const [lightbox, setLightbox] = useState(false);
+  const [brochure, setBrochure] = useState(false);
 
-  const building: Building | null = useMemo(() => {
-    if (!slug) return null;
-    return buildings.find((b) => b.slug === slug) || null;
-  }, [slug]);
-
-  const apartments: Apartment[] = useMemo(() => {
-    if (!slug) return [];
-    return allApartments
-      .filter((a) => a.buildingSlug === slug)
-      .slice()
-      // Keep stable order without relying on DB:
-      // If later you want: sort by floor label or size, we can.
-      ;
-  }, [slug]);
-
-  if (!slug) {
-    return (
-      <div className="pt-16 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 text-lg mb-6">Building not found</p>
-          <Link to="/projects" className="text-blue-900 font-semibold hover:text-blue-800">
-            Back to Projects
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const building: Building | null = useMemo(
+    () => buildings.find((b) => b.slug === slug) || null,
+    [slug]
+  );
+  const units: Apartment[] = useMemo(
+    () => allApartments.filter((a) => a.buildingSlug === slug),
+    [slug]
+  );
 
   if (!building) {
     return (
-      <div className="pt-16 min-h-screen flex items-center justify-center">
+      <div className="pt-32 min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 text-lg mb-6">Building not found</p>
-          <Link to="/projects" className="text-blue-900 font-semibold hover:text-blue-800">
-            Back to Projects
-          </Link>
+          <p className="text-ink-soft text-lg mb-6">Building not found</p>
+          <Link to="/projects" className="text-ink border-b border-bronze pb-1">Back to Projects</Link>
         </div>
       </div>
     );
   }
 
-  const images =
-    building.images && building.images.length > 0
-      ? building.images
-      : ['https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg'];
+  const images = building.images;
 
   return (
-    <div className="pt-16">
-      {/* Back Link */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-        <Link
-          to="/projects"
-          className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span>Back to Projects</span>
+    <div className="pt-28 pb-24">
+      <div className="max-w-8xl mx-auto px-5 sm:px-8 lg:px-12">
+        <Link to="/projects" className="inline-flex items-center gap-2 text-ink-soft hover:text-ink transition-colors mb-8">
+          <ArrowLeft className="h-4 w-4" /> <span className="tracking-wide text-sm">Projects</span>
         </Link>
-      </div>
 
-      {/* Hero Image */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="relative h-96 md:h-[500px] overflow-hidden group bg-gray-200">
-          <img
-            src={images[currentImageIndex]}
-            alt={`${building.title} - Image ${currentImageIndex + 1}`}
-            className="w-full h-full object-cover"
-          />
-
-          {/* Image Navigation */}
-          {images.length > 1 && (
-            <>
+        {/* Gallery */}
+        <Reveal>
+          <button
+            onClick={() => setLightbox(true)}
+            className="group relative w-full aspect-[16/10] md:aspect-[16/8] overflow-hidden block"
+          >
+            <img src={images[active]} alt={building.title} className="w-full h-full object-cover" />
+            <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 bg-ink/70 text-ivory text-xs tracking-wide px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Expand className="h-4 w-4" /> View gallery
+            </span>
+          </button>
+          <div className="grid grid-cols-4 gap-3 mt-3">
+            {images.map((img, i) => (
               <button
-                onClick={() => setCurrentImageIndex((i) => (i - 1 + images.length) % images.length)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100"
+                key={i}
+                onClick={() => setActive(i)}
+                className={`aspect-[4/3] overflow-hidden transition-all ${active === i ? 'ring-2 ring-bronze' : 'opacity-60 hover:opacity-100'}`}
               >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              <button
-                onClick={() => setCurrentImageIndex((i) => (i + 1) % images.length)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Image Thumbnails */}
-        {images.length > 1 && (
-          <div className="grid grid-cols-4 gap-3 mt-6">
-            {images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentImageIndex(index)}
-                className={`relative h-24 overflow-hidden ${
-                  currentImageIndex === index ? 'ring-2 ring-blue-900' : 'opacity-60 hover:opacity-100'
-                } transition-opacity`}
-              >
-                <img src={image} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                <img src={img} alt={`${building.title} ${i + 1}`} className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
+        </Reveal>
+
+        {/* Title + intro */}
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 mt-16">
+          <div className="lg:col-span-7">
+            <Reveal>
+              <p className="eyebrow mb-3">{building.location}, Athens</p>
+              <h1 className="font-display font-light text-5xl sm:text-6xl tracking-tightest text-ink mb-6">
+                {building.title}
+              </h1>
+              <p className="text-ink-soft text-lg leading-relaxed font-light">{building.description}</p>
+            </Reveal>
+          </div>
+          <div className="lg:col-span-4 lg:col-start-9">
+            <Reveal delay={120}>
+              <div className="border border-line p-8 bg-paper">
+                <p className="eyebrow mb-2">Starting price</p>
+                <p className="font-display text-3xl text-ink mb-6">{building.startingPriceText}</p>
+                <ul className="space-y-2.5 mb-8">
+                  {building.highlights.map((h) => (
+                    <li key={h} className="flex items-start gap-3 text-ink-soft text-sm">
+                      <span className="mt-1.5 h-1 w-1 rounded-full bg-bronze flex-shrink-0" />
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+                {building.brochure && (
+                  <button
+                    onClick={() => setBrochure(true)}
+                    className="w-full inline-flex items-center justify-center gap-2 bg-ink text-ivory py-3.5 hover:bg-bronze transition-colors tracking-wide"
+                  >
+                    <BookOpen className="h-4 w-4" /> View Brochure
+                  </button>
+                )}
+              </div>
+            </Reveal>
+          </div>
+        </div>
+
+        {/* Residences */}
+        <div className="mt-28">
+          <Reveal>
+            <p className="eyebrow mb-3">The Residences</p>
+            <h2 className="font-display font-light text-4xl sm:text-5xl tracking-tight text-ink mb-12">
+              Four apartments
+            </h2>
+          </Reveal>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {units.map((u, i) => {
+              const sold = u.status === 'sold';
+              return (
+                <Reveal key={u.id} delay={i * 80}>
+                  <Link to={`/projects/${building.slug}/apartments/${u.slug}`} className="group block">
+                    <div className="relative aspect-[4/3] overflow-hidden mb-5">
+                      <img src={u.images[0]} alt={u.title} className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${sold ? 'grayscale-[35%]' : ''}`} />
+                      {sold && (
+                        <span className="absolute top-4 left-4 bg-ink text-ivory text-xs tracking-luxe uppercase px-3 py-1.5">Sold</span>
+                      )}
+                    </div>
+                    <div className="flex items-baseline justify-between mb-2">
+                      <h3 className="font-display text-2xl text-ink group-hover:text-bronze transition-colors">{u.title}</h3>
+                      <span className={`text-sm ${sold ? 'text-ink-mute' : 'text-ink-soft'}`}>{u.priceText}</span>
+                    </div>
+                    <p className="text-ink-mute text-sm mb-4">{u.floorLabel}</p>
+                    <div className="flex items-center gap-5 text-ink-soft text-sm">
+                      {u.beds != null && <span className="inline-flex items-center gap-1.5"><Bed className="h-4 w-4 text-bronze" />{u.beds}</span>}
+                      {u.baths != null && <span className="inline-flex items-center gap-1.5"><Bath className="h-4 w-4 text-bronze" />{u.baths}</span>}
+                      {u.sizeInteriorSqm != null && <span className="inline-flex items-center gap-1.5"><Maximize className="h-4 w-4 text-bronze" />{u.sizeInteriorSqm} m²</span>}
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Location */}
+        {building.locationDescription && (
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center mt-28">
+            <Reveal>
+              <div className="aspect-[5/4] overflow-hidden">
+                <img src="/images/palmiras/glyfada-aerial.jpg" alt={`${building.location}, Athens`} className="w-full h-full object-cover" />
+              </div>
+            </Reveal>
+            <Reveal delay={120}>
+              <p className="eyebrow mb-4">The Location</p>
+              <h2 className="font-display font-light text-4xl tracking-tight text-ink mb-6">{building.location}</h2>
+              <p className="text-ink-soft text-lg leading-relaxed font-light">{building.locationDescription}</p>
+            </Reveal>
+          </div>
         )}
-      </section>
+      </div>
 
-      {/* Building Info with Sticky Card */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t-2 border-gray-200">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            <div>
-              <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-4">{building.title}</h1>
-              <div className="flex items-center gap-2 text-lg text-gray-700">
-                <MapPin className="h-5 w-5 text-blue-900" />
-                <span>{building.location}</span>
-              </div>
-            </div>
-
-            <p className="text-lg text-gray-700 leading-relaxed">{building.description}</p>
-
-            <a
-              href="#apartments"
-              className="inline-flex items-center gap-2 bg-blue-900 text-white px-8 py-4 font-semibold hover:bg-blue-800 transition-colors"
-            >
-              <span>See Apartments</span>
-              <ArrowRight className="h-5 w-5" />
-            </a>
-          </div>
-
-          {/* Sticky Info Card */}
-          <div className="lg:sticky lg:top-24">
-            <div className="bg-white p-8 border-2 border-gray-200">
-              <div className="space-y-6">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-3">Starting Price</p>
-                  <div className="flex items-baseline gap-2">
-                    <Euro className="h-6 w-6 text-blue-900" />
-                    <span className="text-4xl font-bold text-gray-900">{building.startingPriceText}</span>
-                  </div>
-                </div>
-                <div className="border-t pt-4">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Location:</span> {building.location}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Apartments Section */}
-      <section id="apartments" className="bg-gray-50 py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-12">Available Apartments</h2>
-
-          {apartments.length === 0 ? (
-            <p className="text-gray-600">No apartments available yet.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {apartments.map((apartment) => (
-                <div
-                  key={apartment.id}
-                  className="bg-white overflow-hidden border border-gray-200 hover:border-blue-900 transition-colors group"
-                >
-                  {/* Cover Image */}
-                  <div className="relative h-56 bg-gray-200 overflow-hidden">
-                    <img
-                      src={
-                        apartment.images?.[0] ||
-                        'https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg'
-                      }
-                      alt={apartment.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {!!apartment.images?.length && apartment.images.length > 1 && (
-                      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                        {apartment.images.length} photos
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Card Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{apartment.title}</h3>
-
-                    {/* Price */}
-                    <div className="flex items-baseline gap-2 mb-4">
-                      <Euro className="h-5 w-5 text-blue-900" />
-                      <span className="text-2xl font-bold text-gray-900">{apartment.priceText}</span>
-                    </div>
-
-                    {/* Key Specs */}
-                    <div className="grid grid-cols-4 gap-3 mb-4 pb-4 border-b border-gray-200 text-xs">
-                      <div>
-                        <p className="text-gray-600 font-semibold mb-1">Size</p>
-                        <p className="font-bold text-gray-900">
-                          {typeof apartment.sizeInteriorSqm === 'number' ? `${apartment.sizeInteriorSqm}m²` : '—'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600 font-semibold mb-1">Beds</p>
-                        <p className="font-bold text-gray-900">{typeof apartment.beds === 'number' ? apartment.beds : '—'}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600 font-semibold mb-1">Baths</p>
-                        <p className="font-bold text-gray-900">{typeof apartment.baths === 'number' ? apartment.baths : '—'}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600 font-semibold mb-1">Floor</p>
-                        <p className="font-bold text-gray-900">{apartment.floorLabel || '—'}</p>
-                      </div>
-                    </div>
-
-                    {/* Features */}
-                    {apartment.features && apartment.features.length > 0 && (
-                      <div className="mb-6">
-                        <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">Features</p>
-                        <ul className="space-y-1">
-                          {apartment.features.slice(0, 3).map((feature, idx) => (
-                            <li key={idx} className="text-sm text-gray-700">
-                              • {feature}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* CTA */}
-                    <Link
-                      to={`/projects/${building.slug}/apartments/${apartment.slug}`}
-                      className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all group/link w-full justify-between"
-                    >
-                      <span>View Apartment</span>
-                      <ArrowRight className="h-5 w-5" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      {lightbox && (
+        <Lightbox images={images} index={active} onClose={() => setLightbox(false)} onIndex={setActive} />
+      )}
+      {brochure && building.brochure && (
+        <BrochureViewer pdf={building.brochure.pdf} pages={building.brochure.pages} onClose={() => setBrochure(false)} />
+      )}
     </div>
   );
 }

@@ -1,94 +1,104 @@
+import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import logo from '../assets/pyrgos-logo.png';
+import { siteConfig } from '../data/pyrgosData';
+
+const links = [
+  { to: '/', label: 'Home' },
+  { to: '/projects', label: 'Projects' },
+  { to: '/about', label: 'About' },
+];
 
 export default function Navigation() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const isHome = location.pathname === '/';
 
-  const isActive = (path: string) => location.pathname === path;
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const transparent = isHome && !scrolled && !open;
+  const isActive = (p: string) => location.pathname === p;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
+        transparent ? 'bg-transparent' : 'bg-ivory/90 backdrop-blur-md border-b border-line'
+      }`}
+    >
+      <div className="max-w-8xl mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={logo} alt="Pyrgos Real Estate" className="h-12 w-auto" />
+            {transparent ? (
+              <span className="font-display text-2xl tracking-tight text-ivory">{siteConfig.shortName}</span>
+            ) : (
+              <img src={logo} alt={siteConfig.companyName} className="h-12 w-auto" />
+            )}
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              to="/"
-              className={`font-medium transition-colors ${
-                isActive('/') ? 'text-blue-900' : 'text-gray-700 hover:text-blue-900'
-              }`}
-            >
-              Home
-            </Link>
-            <Link
-              to="/about"
-              className={`font-medium transition-colors ${
-                isActive('/about') ? 'text-blue-900' : 'text-gray-700 hover:text-blue-900'
-              }`}
-            >
-              About
-            </Link>
-            <Link
-              to="/projects"
-              className={`font-medium transition-colors ${
-                isActive('/projects') ? 'text-blue-900' : 'text-gray-700 hover:text-blue-900'
-              }`}
-            >
-              Projects
-            </Link>
+          <div className="hidden md:flex items-center gap-10">
+            {links.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className={`text-sm tracking-wide transition-colors ${
+                  transparent
+                    ? 'text-ivory/85 hover:text-ivory'
+                    : isActive(l.to)
+                    ? 'text-ink'
+                    : 'text-ink-soft hover:text-ink'
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
             <Link
               to="/contact"
-              className="bg-blue-900 text-white px-6 py-2 rounded-sm font-medium hover:bg-blue-800 transition-colors"
+              className={`text-sm tracking-wide px-6 py-2.5 transition-colors ${
+                transparent
+                  ? 'border border-ivory/60 text-ivory hover:bg-ivory hover:text-ink'
+                  : 'bg-ink text-ivory hover:bg-bronze'
+              }`}
             >
-              Contact Us
+              Contact
             </Link>
           </div>
 
           <button
-            className="md:hidden p-2"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className={`md:hidden p-2 ${transparent ? 'text-ivory' : 'text-ink'}`}
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
-          <div className="px-4 py-4 space-y-3">
-            <Link
-              to="/"
-              onClick={() => setIsMenuOpen(false)}
-              className="block py-2 text-gray-700 hover:text-blue-900 font-medium transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              to="/about"
-              onClick={() => setIsMenuOpen(false)}
-              className="block py-2 text-gray-700 hover:text-blue-900 font-medium transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              to="/projects"
-              onClick={() => setIsMenuOpen(false)}
-              className="block py-2 text-gray-700 hover:text-blue-900 font-medium transition-colors"
-            >
-              Projects
-            </Link>
+      {open && (
+        <div className="md:hidden bg-ivory border-t border-line">
+          <div className="px-6 py-5 space-y-4">
+            {links.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                onClick={() => setOpen(false)}
+                className="block text-ink-soft hover:text-ink"
+              >
+                {l.label}
+              </Link>
+            ))}
             <Link
               to="/contact"
-              onClick={() => setIsMenuOpen(false)}
-              className="block w-full bg-blue-900 text-white px-4 py-2 rounded-sm font-medium hover:bg-blue-800 transition-colors text-center"
+              onClick={() => setOpen(false)}
+              className="block w-full text-center bg-ink text-ivory px-4 py-3 hover:bg-bronze transition-colors"
             >
-              Contact Us
+              Contact
             </Link>
           </div>
         </div>

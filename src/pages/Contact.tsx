@@ -1,87 +1,67 @@
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import { siteConfig } from '../data/pyrgosData';
+import Reveal from '../components/Reveal';
 
 export default function Contact() {
   return (
-    <div className="pt-16">
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="space-y-12">
-          <div>
-            <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-4">Contact Us</h1>
-            <p className="text-xl text-gray-700">Reach us directly using the details below.</p>
+    <div className="pt-32 pb-24">
+      <div className="max-w-8xl mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
+          <div className="lg:col-span-5">
+            <Reveal>
+              <p className="eyebrow mb-4">Contact</p>
+              <h1 className="font-display font-light text-5xl sm:text-6xl lg:text-7xl tracking-tightest text-ink mb-8">
+                Let&rsquo;s talk.
+              </h1>
+              <p className="text-ink-soft text-lg leading-relaxed font-light max-w-md">
+                For availability, specifications, or to arrange a private viewing, reach our team
+                directly. Please mention the residence you&rsquo;re interested in so we can help faster.
+              </p>
+            </Reveal>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* Contact Info */}
-            <div className="space-y-8">
-              <p className="text-lg text-gray-700">
-                For project inquiries, apartment availability, or partnership opportunities,
-                contact our team and we&rsquo;ll respond as soon as possible.
-              </p>
-
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <MapPin className="h-6 w-6 text-blue-900 mt-1 flex-shrink-0" />
+          <div className="lg:col-span-6 lg:col-start-7">
+            <Reveal delay={120}>
+              <div className="space-y-px bg-line border border-line">
+                <div className="bg-paper p-7 flex gap-5">
+                  <MapPin className="h-6 w-6 text-bronze flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Office</h3>
-                    <p className="text-gray-700">{siteConfig.address}</p>
+                    <p className="eyebrow mb-2">Office</p>
+                    <p className="text-ink text-lg">{siteConfig.address}</p>
                   </div>
                 </div>
-
-                <div className="flex gap-4">
-                  <Phone className="h-6 w-6 text-blue-900 mt-1 flex-shrink-0" />
+                <div className="bg-paper p-7 flex gap-5">
+                  <Phone className="h-6 w-6 text-bronze flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
+                    <p className="eyebrow mb-2">Phone</p>
                     {siteConfig.phones.map((p) => (
-                      <a key={p.href} href={p.href} className="hover:underline block text-gray-700">
+                      <a key={p.href} href={p.href} className="block text-ink text-lg hover:text-bronze transition-colors">
                         {p.label}: {p.display}
                       </a>
                     ))}
                   </div>
                 </div>
-
-                <div className="flex gap-4">
-                  <Mail className="h-6 w-6 text-blue-900 mt-1 flex-shrink-0" />
+                <div className="bg-paper p-7 flex gap-5">
+                  <Mail className="h-6 w-6 text-bronze flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <a href={`mailto:${siteConfig.email}`} className="hover:underline text-gray-700">
+                    <p className="eyebrow mb-2">Email</p>
+                    <a href={`mailto:${siteConfig.email}`} className="text-ink text-lg hover:text-bronze transition-colors break-all">
                       {siteConfig.email}
                     </a>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
-                  When contacting us, please mention the building and apartment you are
-                  interested in so we can assist you faster.
-                </p>
-              </div>
-            </div>
-
-            {/* CTA Panel */}
-            <div className="border border-gray-200 bg-white p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">Quick Contact</h2>
-              <p className="text-gray-700 mb-6">Choose your preferred channel:</p>
-
-              <div className="flex flex-col gap-3">
-                <a
-                  href={`mailto:${siteConfig.email}?subject=Pyrgos%20Inquiry`}
-                  className="inline-flex items-center justify-center px-5 py-3 bg-blue-900 text-white font-semibold hover:bg-blue-800 transition-colors"
-                >
-                  Email us
-                </a>
-                <a
-                  href={siteConfig.phones[0].href}
-                  className="inline-flex items-center justify-center px-5 py-3 border border-gray-300 text-gray-900 font-semibold hover:bg-gray-50 transition-colors"
-                >
-                  Call us
-                </a>
-              </div>
-            </div>
+              <a
+                href={`mailto:${siteConfig.email}?subject=Pyrgos%20Inquiry`}
+                className="mt-6 w-full inline-flex items-center justify-center gap-3 bg-ink text-ivory py-4 hover:bg-bronze transition-colors tracking-wide"
+              >
+                Email us <ArrowRight className="h-5 w-5" />
+              </a>
+            </Reveal>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

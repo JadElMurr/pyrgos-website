@@ -1,114 +1,85 @@
 import { Link } from 'react-router';
-import { ArrowRight, MapPin, Euro } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
 import { buildings, type Building } from '../data/pyrgosData';
+import Reveal from '../components/Reveal';
 
-export default function Projects() {
-  const gaziBuildings = buildings.filter((b) => b.location === 'Gazi');
-  const glyfadaBuildings = buildings.filter((b) => b.location === 'Glyfada');
-
-  const BuildingRow = ({ building }: { building: Building }) => (
-    <div className="group">
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
-        {/* Image */}
-        <div className="lg:col-span-2 overflow-hidden bg-gray-200 h-72 lg:h-auto">
-          <img
-            src={
-              building.images?.[0] ||
-              'https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg'
-            }
-            alt={building.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        </div>
-
-        {/* Content */}
-        <div className="lg:col-span-3 flex flex-col justify-between">
-          <div className="space-y-4 mb-6">
-            <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 group-hover:text-blue-900 transition-colors">
+function ProjectRow({ building, index }: { building: Building; index: number }) {
+  const flip = index % 2 === 1;
+  return (
+    <Reveal>
+      <Link to={`/projects/${building.slug}`} className="group block">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center py-12 border-t border-line">
+          <div className={`overflow-hidden aspect-[4/3] ${flip ? 'lg:order-2' : ''}`}>
+            <img
+              src={building.images[0]}
+              alt={building.title}
+              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1.2s]"
+            />
+          </div>
+          <div className={flip ? 'lg:order-1' : ''}>
+            <div className="flex items-center gap-2 text-bronze text-sm mb-3">
+              <MapPin className="h-4 w-4" />
+              <span className="tracking-wide">{building.location}</span>
+            </div>
+            <h3 className="font-display font-light text-4xl sm:text-5xl tracking-tight text-ink mb-4 group-hover:text-bronze transition-colors">
               {building.title}
             </h3>
-
-            <div className="flex items-center gap-2 text-lg text-gray-700">
-              <MapPin className="h-5 w-5 text-blue-900 flex-shrink-0" />
-              <span>{building.location}</span>
-            </div>
-
-            <div className="flex items-baseline gap-2">
-              <Euro className="h-5 w-5 text-blue-900 flex-shrink-0" />
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {building.startingPriceText}
-              </span>
-              <span className="text-sm text-gray-600">starting price</span>
-            </div>
-
-            <p className="text-gray-700 leading-relaxed">{building.description}</p>
-
-            {building.highlights?.length > 0 && (
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 pt-2 text-gray-700">
-                {building.highlights.map((h) => (
-                  <li key={h} className="flex items-start gap-2">
-                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-900 flex-shrink-0" />
-                    <span>{h}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <p className="text-ink-soft text-lg font-light leading-relaxed mb-6 max-w-xl">
+              {building.description}
+            </p>
+            <p className="text-ink font-medium mb-6">{building.startingPriceText}</p>
+            <span className="inline-flex items-center gap-3 text-ink border-b border-bronze pb-1 group-hover:gap-4 transition-all">
+              <span className="tracking-wide">View building</span>
+              <ArrowRight className="h-4 w-4 text-bronze" />
+            </span>
           </div>
-
-          <Link
-            to={`/projects/${building.slug}`}
-            className="inline-flex items-center gap-2 text-blue-900 font-semibold hover:gap-3 transition-all group/link w-fit"
-          >
-            <span>View Building</span>
-            <ArrowRight className="h-5 w-5" />
-          </Link>
         </div>
-      </div>
-
-      <div className="mt-12 border-t-2 border-gray-200" />
-    </div>
+      </Link>
+    </Reveal>
   );
+}
+
+export default function Projects() {
+  const glyfada = buildings.filter((b) => b.location === 'Glyfada');
+  const gazi = buildings.filter((b) => b.location === 'Gazi');
 
   return (
-    <div className="pt-16">
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="space-y-16">
-          {/* Gazi Section */}
-          <div className="space-y-8">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900">Gazi Listings</h2>
+    <div className="pt-32 pb-24">
+      <div className="max-w-8xl mx-auto px-5 sm:px-8 lg:px-12">
+        <Reveal>
+          <p className="eyebrow mb-4">Developments</p>
+          <h1 className="font-display font-light text-5xl sm:text-6xl lg:text-7xl tracking-tightest text-ink mb-16 max-w-3xl">
+            A focused portfolio across Athens.
+          </h1>
+        </Reveal>
 
-            {gaziBuildings.length === 0 ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-sm p-10 text-center">
-                <p className="text-gray-700 text-lg font-semibold">Coming soon</p>
-                <p className="text-gray-600 mt-2">
-                  We will publish our Gazi brochure and listings shortly.
+        {glyfada.map((b, i) => (
+          <ProjectRow key={b.id} building={b} index={i} />
+        ))}
+
+        {/* Gazi — upcoming */}
+        <Reveal>
+          <div className="border-t border-line py-12 mt-4">
+            <div className="flex items-center gap-2 text-ink-mute text-sm mb-3">
+              <MapPin className="h-4 w-4" />
+              <span className="tracking-wide">Gazi</span>
+            </div>
+            {gazi.length === 0 ? (
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <h3 className="font-display font-light text-4xl sm:text-5xl tracking-tight text-ink-mute">
+                  Gazi — in development
+                </h3>
+                <p className="text-ink-soft font-light max-w-md">
+                  A new Pyrgos residence in central Athens. Brochure and availability to be
+                  published shortly.
                 </p>
               </div>
             ) : (
-              gaziBuildings.map((building) => (
-                <BuildingRow key={building.id} building={building} />
-              ))
+              gazi.map((b, i) => <ProjectRow key={b.id} building={b} index={i} />)
             )}
           </div>
-
-          <div className="border-t-2 border-gray-200" />
-
-          {/* Glyfada Section */}
-          <div className="space-y-8">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900">Glyfada Listings</h2>
-
-            {glyfadaBuildings.length === 0 ? (
-              <div className="text-center text-gray-600 py-12">
-                <p>No projects available at the moment.</p>
-              </div>
-            ) : (
-              glyfadaBuildings.map((building) => (
-                <BuildingRow key={building.id} building={building} />
-              ))
-            )}
-          </div>
-        </div>
-      </section>
+        </Reveal>
+      </div>
     </div>
   );
 }
