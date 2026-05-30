@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import { siteConfig } from '../data/pyrgosData';
 import Reveal from '../components/Reveal';
+import ImageFrame from '../components/ImageFrame';
 
 const values = [
   { title: 'Quality', body: 'Considered materials and finishes, specified to last and to feel good in daily use.' },
@@ -36,9 +37,9 @@ export default function About() {
                 and honest materials — not from excess.
               </p>
               <p className="text-ink-soft text-lg leading-relaxed font-light">
-                Our current development, Palmiras 16, brings that thinking to Glyfada, on the southern
-                coast of Athens — a clean, light-filled building designed around the relationship
-                between interior and exterior space.
+                Our developments span greater Athens — from Palmiras 16 in Glyfada, on the southern
+                coast, to Gazi Residences in the heart of the city — each designed around the
+                relationship between interior and exterior space, daylight, and honest materials.
               </p>
             </Reveal>
           </div>
@@ -46,9 +47,7 @@ export default function About() {
 
         {/* Image */}
         <Reveal>
-          <div className="aspect-[16/9] overflow-hidden mb-24">
-            <img src="/images/palmiras/building-rear.jpg" alt="A Pyrgos residence in Athens" className="w-full h-full object-cover" />
-          </div>
+          <ImageFrame src="/images/palmiras/palmiras-roof-garden.jpg" alt="A Pyrgos residence in Athens" className="aspect-[16/9] mb-24" />
         </Reveal>
 
         {/* Values */}

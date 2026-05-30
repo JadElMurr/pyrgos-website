@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router';
+import { BrowserRouter as Router, Routes, Route, useLocation, Link } from 'react-router';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -17,6 +17,21 @@ function ScrollToTop() {
   return null;
 }
 
+function NotFound() {
+  return (
+    <div className="pt-40 pb-32 min-h-[60vh] flex items-center justify-center text-center px-6">
+      <div>
+        <p className="eyebrow mb-4">404</p>
+        <h1 className="font-display font-light text-5xl sm:text-6xl tracking-tightest text-ink mb-6">Page not found</h1>
+        <p className="text-ink-soft font-light mb-8">The page you&rsquo;re looking for doesn&rsquo;t exist or has moved.</p>
+        <Link to="/" className="inline-flex items-center gap-2 bg-ink text-ivory px-7 py-3.5 hover:bg-bronze transition-colors tracking-wide">
+          Return home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
@@ -31,6 +46,7 @@ function App() {
             <Route path="/projects/:slug" element={<BuildingDetail />} />
             <Route path="/projects/:slug/apartments/:apartmentSlug" element={<ApartmentDetail />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />

@@ -4,14 +4,18 @@ import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 export default function BrochureViewer({
   pdf,
   pages,
+  dir = '/images/brochure',
+  title = 'Brochure',
   onClose,
 }: {
   pdf: string;
   pages: number;
+  dir?: string;
+  title?: string;
   onClose: () => void;
 }) {
   const [i, setI] = useState(0);
-  const pageUrl = (n: number) => `/images/brochure/page-${String(n + 1).padStart(2, '0')}.jpg`;
+  const pageUrl = (n: number) => `${dir}/page-${String(n + 1).padStart(2, '0')}.jpg`;
 
   const prev = useCallback(() => setI((p) => (p - 1 + pages) % pages), [pages]);
   const next = useCallback(() => setI((p) => (p + 1) % pages), [pages]);
@@ -34,7 +38,7 @@ export default function BrochureViewer({
     <div className="fixed inset-0 z-[100] bg-ink/95 backdrop-blur-sm flex flex-col">
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 sm:px-8 py-4 text-ivory">
-        <span className="font-display text-lg">Palmiras 16 — Brochure</span>
+        <span className="font-display text-lg">{title}</span>
         <div className="flex items-center gap-3">
           <a
             href={pdf}

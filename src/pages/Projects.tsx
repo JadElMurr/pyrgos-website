@@ -1,7 +1,8 @@
 import { Link } from 'react-router';
 import { ArrowRight, MapPin } from 'lucide-react';
-import { buildings, type Building } from '../data/pyrgosData';
+import { buildings, siteConfig, type Building } from '../data/pyrgosData';
 import Reveal from '../components/Reveal';
+import ImageFrame from '../components/ImageFrame';
 
 function ProjectRow({ building, index }: { building: Building; index: number }) {
   const flip = index % 2 === 1;
@@ -10,10 +11,11 @@ function ProjectRow({ building, index }: { building: Building; index: number }) 
       <Link to={`/projects/${building.slug}`} className="group block">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center py-12 border-t border-line">
           <div className={`overflow-hidden aspect-[4/3] ${flip ? 'lg:order-2' : ''}`}>
-            <img
+            <ImageFrame
               src={building.images[0]}
               alt={building.title}
-              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1.2s]"
+              className="w-full h-full"
+              imgClassName="group-hover:scale-[1.03] transition-transform duration-[1.2s]"
             />
           </div>
           <div className={flip ? 'lg:order-1' : ''}>
@@ -39,9 +41,33 @@ function ProjectRow({ building, index }: { building: Building; index: number }) 
   );
 }
 
+function UpcomingRow({ building }: { building: Building }) {
+  return (
+    <Reveal>
+      <div className="border-t border-line py-12">
+        <div className="flex items-center gap-2 text-ink-mute text-sm mb-3">
+          <MapPin className="h-4 w-4" />
+          <span className="tracking-wide">{building.location}</span>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="flex items-baseline gap-4 flex-wrap">
+            <h3 className="font-display font-light text-4xl sm:text-5xl tracking-tight text-ink-mute">
+              {building.title}
+            </h3>
+            <span className="text-bronze text-xs tracking-luxe uppercase border border-bronze/40 px-3 py-1.5">
+              In development
+            </span>
+          </div>
+          <p className="text-ink-soft font-light max-w-md">{building.description}</p>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
 export default function Projects() {
-  const glyfada = buildings.filter((b) => b.location === 'Glyfada');
-  const gazi = buildings.filter((b) => b.location === 'Gazi');
+  const live = buildings.filter((b) => b.status !== 'upcoming');
+  const upcoming = buildings.filter((b) => b.status === 'upcoming');
 
   return (
     <div className="pt-32 pb-24">
@@ -49,36 +75,17 @@ export default function Projects() {
         <Reveal>
           <p className="eyebrow mb-4">Developments</p>
           <h1 className="font-display font-light text-5xl sm:text-6xl lg:text-7xl tracking-tightest text-ink mb-16 max-w-3xl">
-            A focused portfolio across Athens.
+            {siteConfig.projectsHeadline}
           </h1>
         </Reveal>
 
-        {glyfada.map((b, i) => (
+        {live.map((b, i) => (
           <ProjectRow key={b.id} building={b} index={i} />
         ))}
 
-        {/* Gazi — upcoming */}
-        <Reveal>
-          <div className="border-t border-line py-12 mt-4">
-            <div className="flex items-center gap-2 text-ink-mute text-sm mb-3">
-              <MapPin className="h-4 w-4" />
-              <span className="tracking-wide">Gazi</span>
-            </div>
-            {gazi.length === 0 ? (
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                <h3 className="font-display font-light text-4xl sm:text-5xl tracking-tight text-ink-mute">
-                  Gazi — in development
-                </h3>
-                <p className="text-ink-soft font-light max-w-md">
-                  A new Pyrgos residence in central Athens. Brochure and availability to be
-                  published shortly.
-                </p>
-              </div>
-            ) : (
-              gazi.map((b, i) => <ProjectRow key={b.id} building={b} index={i} />)
-            )}
-          </div>
-        </Reveal>
+        {upcoming.map((b) => (
+          <UpcomingRow key={b.id} building={b} />
+        ))}
       </div>
     </div>
   );

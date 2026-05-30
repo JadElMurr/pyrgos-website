@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Bed, Bath, Maximize, Car, Sun, Trees, Building a
 import { buildings, apartments as allApartments, type Building, type Apartment } from '../data/pyrgosData';
 import Reveal from '../components/Reveal';
 import Lightbox from '../components/Lightbox';
+import ImageFrame from '../components/ImageFrame';
 
 type Spec = { icon: React.ElementType; label: string; value: string };
 
@@ -33,8 +34,12 @@ export default function ApartmentDetail() {
   }
 
   const sold = apartment.status === 'sold';
+  const reserved = apartment.status === 'reserved';
   const images = apartment.images;
   const plans = apartment.floorPlans ?? [];
+  // Units without photography (e.g. Gazi) lead with their floor plan instead of a gallery.
+  const hero = images.length ? images : plans;
+  const heroIsPlan = images.length === 0;
 
   const specs: Spec[] = [
     apartment.sizeInteriorSqm != null && { icon: Maximize, label: 'Interior', value: `${apartment.sizeInteriorSqm} m²` },
@@ -58,32 +63,36 @@ export default function ApartmentDetail() {
           </Link>
         </div>
 
-        {/* Gallery */}
+        {/* Gallery (photos, or floor plan when no photography exists) */}
         <Reveal>
-          <button onClick={() => setLb({ imgs: images, idx: active })} className="group relative w-full aspect-[16/10] md:aspect-[16/8] overflow-hidden block">
-            <img src={images[active]} alt={apartment.title} className={`w-full h-full object-cover ${sold ? 'grayscale-[25%]' : ''}`} />
-            {sold && <span className="absolute top-5 left-5 bg-ink text-ivory text-xs tracking-luxe uppercase px-4 py-2">Sold</span>}
-            <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 bg-ink/70 text-ivory text-xs tracking-wide px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Expand className="h-4 w-4" /> View gallery
+          <button onClick={() => setLb({ imgs: hero, idx: active })} className="group relative w-full aspect-[4/3] md:aspect-[3/2] overflow-hidden block">
+            <ImageFrame src={hero[active]} alt={apartment.title} className="w-full h-full" eager imgClassName={sold ? 'grayscale-[25%]' : ''} />
+            {sold && <span className="absolute z-20 top-5 left-5 bg-ink text-ivory text-xs tracking-luxe uppercase px-4 py-2">Sold</span>}
+            {reserved && <span className="absolute z-20 top-5 left-5 bg-bronze text-ivory text-xs tracking-luxe uppercase px-4 py-2">Reserved</span>}
+            <span className="absolute z-20 bottom-4 right-4 inline-flex items-center gap-2 bg-ink/70 text-ivory text-xs tracking-wide px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Expand className="h-4 w-4" /> {heroIsPlan ? 'View larger' : 'View gallery'}
             </span>
           </button>
-          <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mt-3">
-            {images.map((img, i) => (
-              <button key={i} onClick={() => setActive(i)} className={`aspect-[4/3] overflow-hidden transition-all ${active === i ? 'ring-2 ring-bronze' : 'opacity-60 hover:opacity-100'}`}>
-                <img src={img} alt={`${apartment.title} ${i + 1}`} className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
+          {hero.length > 1 && (
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mt-3">
+              {hero.map((img, i) => (
+                <button key={i} onClick={() => setActive(i)} className={`aspect-[4/3] overflow-hidden transition-all ${active === i ? 'ring-2 ring-bronze' : 'opacity-60 hover:opacity-100'}`}>
+                  <ImageFrame src={img} alt={`${apartment.title} ${i + 1}`} className="w-full h-full" blur={false} />
+                </button>
+              ))}
+            </div>
+          )}
         </Reveal>
 
         {/* Title + specs */}
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 mt-16">
           <div className="lg:col-span-7">
             <Reveal>
-              <p className="eyebrow mb-3">{building.title} · {building.location}</p>
+              <p className="eyebrow mb-3">{[building.title, apartment.unitType, building.location].filter(Boolean).join(' · ')}</p>
               <div className="flex flex-wrap items-baseline gap-4 mb-6">
                 <h1 className="font-display font-light text-5xl sm:text-6xl tracking-tightest text-ink">{apartment.title}</h1>
                 {sold && <span className="bg-ink text-ivory text-xs tracking-luxe uppercase px-3 py-1.5">Sold</span>}
+                {reserved && <span className="bg-bronze text-ivory text-xs tracking-luxe uppercase px-3 py-1.5">Reserved</span>}
               </div>
               <p className="font-display text-3xl text-ink mb-8">{apartment.priceText}</p>
               {apartment.description && (
@@ -136,8 +145,20 @@ export default function ApartmentDetail() {
           </div>
         </div>
 
-        {/* Floor plans */}
-        {plans.length > 0 && (
+        {/* Indicative interiors note for plan-led units */}
+        {heroIsPlan && building.interiorImages && building.interiorImages.length > 0 && (
+          <Reveal>
+            <p className="mt-20 text-ink-soft text-sm max-w-2xl">
+              Photography for this residence is shown as indicative interior renders on the{' '}
+              <Link to={`/projects/${building.slug}`} className="text-ink border-b border-bronze pb-0.5 hover:text-bronze transition-colors">
+                {building.title}
+              </Link>{' '}building page, representative of the apartment styles in this development.
+            </p>
+          </Reveal>
+        )}
+
+        {/* Floor plans (shown separately only when photography is the hero) */}
+        {images.length > 0 && plans.length > 0 && (
           <div className="mt-24">
             <Reveal>
               <p className="eyebrow mb-3">Floor Plan{plans.length > 1 ? 's' : ''}</p>
