@@ -262,7 +262,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
   },
   {
     id: 'apt_gazi_c3', buildingSlug: 'gazi-residences', slug: 'suite-c3', title: 'C3 — Urban Suite',
-    status: 'reserved', price: 200000, unitType: 'Simplex',
+    status: 'available', price: 200000, unitType: 'Simplex',
     sizeInteriorSqm: 39, balconiesSqm: 8, beds: 1, baths: 1, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '3rd floor',
     features: ['Single-level layout', 'Open-plan living', 'Private balcony', 'Energy Class A'],
@@ -282,7 +282,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
   },
   {
     id: 'apt_gazi_d2', buildingSlug: 'gazi-residences', slug: 'suite-d2', title: 'D2 — Urban Suite',
-    status: 'reserved', price: 220000, unitType: 'Simplex',
+    status: 'available', price: 220000, unitType: 'Simplex',
     sizeInteriorSqm: 36, balconiesSqm: 8, beds: 1, baths: 1, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '4th floor',
     features: ['Single-level layout', 'Open-plan living', 'Private balcony', 'Energy Class A'],
@@ -302,7 +302,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
   },
   {
     id: 'apt_gazi_e2', buildingSlug: 'gazi-residences', slug: 'suite-e2', title: 'E2 — Urban Suite',
-    status: 'reserved', price: 240000, unitType: 'Simplex',
+    status: 'available', price: 240000, unitType: 'Simplex',
     sizeInteriorSqm: 36, balconiesSqm: 8, beds: 1, baths: 1, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '5th floor',
     features: ['Single-level layout', 'Open-plan living', 'Private balcony', 'Energy Class A'],
