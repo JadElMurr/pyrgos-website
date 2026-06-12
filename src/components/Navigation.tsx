@@ -7,6 +7,7 @@ import { siteConfig } from '../data/pyrgosData';
 const links = [
   { to: '/', label: 'Home' },
   { to: '/projects', label: 'Projects' },
+  { to: '/residences', label: 'Residences' },
   { to: '/about', label: 'About' },
 ];
 

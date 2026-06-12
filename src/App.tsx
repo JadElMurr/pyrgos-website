@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Link } from 'react-router';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
@@ -8,6 +8,11 @@ import Projects from './pages/Projects';
 import BuildingDetail from './pages/BuildingDetail';
 import ApartmentDetail from './pages/ApartmentDetail';
 import Contact from './pages/Contact';
+import Residences from './pages/Residences';
+import adminConfig from './admin/admin.config.json';
+
+// The studio is code-split: visitors never download a byte of it.
+const AdminPage = lazy(() => import('./admin/AdminPage'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -42,10 +47,12 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
+            <Route path="/residences" element={<Residences />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:slug" element={<BuildingDetail />} />
             <Route path="/projects/:slug/apartments/:apartmentSlug" element={<ApartmentDetail />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path={`/${adminConfig.adminPath}`} element={<Suspense fallback={null}><AdminPage /></Suspense>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

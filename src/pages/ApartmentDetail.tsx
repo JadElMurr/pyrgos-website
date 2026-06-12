@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { ArrowLeft, ArrowRight, Bed, Bath, Maximize, Car, Sun, Trees, Building as BuildingIcon } from 'lucide-react';
-import { buildings, apartments as allApartments, type Building, type Apartment } from '../data/pyrgosData';
+import { ArrowLeft, ArrowRight, Bed, Bath, Maximize, Car, Sun, Trees, Building as BuildingIcon, MessageCircle } from 'lucide-react';
+import { buildings, apartments as allApartments, siteConfig, type Building, type Apartment } from '../data/pyrgosData';
 import Reveal from '../components/Reveal';
 import Lightbox from '../components/Lightbox';
 import Gallery from '../components/Gallery';
@@ -34,6 +34,10 @@ export default function ApartmentDetail() {
 
   const sold = apartment.status === 'sold';
   const reserved = apartment.status === 'reserved';
+  const waDigits = siteConfig.whatsapp.replace(/[^\d]/g, '');
+  const waHref = waDigits
+    ? `https://wa.me/${waDigits}?text=${encodeURIComponent(`Hello, I am interested in ${apartment.title} at ${building.title} - https://pyrgosgr.com/projects/${building.slug}/apartments/${apartment.slug}`)}`
+    : '';
   const images = apartment.images;
   const plans = apartment.floorPlans ?? [];
   // Units without photography (e.g. Gazi) lead with their floor plan instead of a gallery.
@@ -130,6 +134,14 @@ export default function ApartmentDetail() {
                 <Link to="/contact" className="w-full inline-flex items-center justify-center gap-2 bg-ink text-ivory py-3.5 hover:bg-bronze transition-colors tracking-wide">
                   {sold ? 'Enquire about similar' : 'Inquire Now'} <ArrowRight className="h-4 w-4" />
                 </Link>
+                {waDigits !== '' && (
+                  <a
+                    href={waHref} target="_blank" rel="noreferrer"
+                    className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-line bg-paper text-ink py-3.5 hover:border-bronze hover:text-bronze transition-colors tracking-wide"
+                  >
+                    <MessageCircle className="h-4 w-4" /> WhatsApp
+                  </a>
+                )}
               </div>
             </Reveal>
           </div>
