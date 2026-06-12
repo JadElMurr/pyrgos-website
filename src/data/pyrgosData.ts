@@ -150,12 +150,16 @@ export const buildings: Building[] = [
 //  Change price: edit the  price:  number.
 const P = '/images/palmiras/';
 const G = '/images/gazi/';
+// Gazi interior renders are indicative and shared per unit-type (as presented in the brochure).
+// Duplex Lofts (A) share one set; all Urban Suites (C/D/E/F/H) share another.
+const GAZI_DUPLEX_INT = [G + 'gazi-int-living2.jpg', G + 'gazi-int-hallway.jpg', G + 'gazi-int-bedroom.jpg', G + 'gazi-int-balcony.jpg'];
+const GAZI_URBAN_INT = [G + 'gazi-int-living.jpg', G + 'gazi-int-kitchen.jpg', G + 'gazi-int-bedroom.jpg', G + 'gazi-int-balcony-urban.jpg'];
 const rawApartments: Omit<Apartment, 'priceText'>[] = [
   // ---------- PALMIRAS 16 (Glyfada) ----------
   {
     id: 'apt_palmiras_d1', buildingSlug: 'palmiras-16', slug: 'duplex-d1', title: 'Duplex D1',
     status: 'available', price: 800000, unitType: 'Duplex',
-    sizeInteriorSqm: 77.2, balconiesSqm: 5.25, gardenSqm: 106.78, beds: 2, baths: 2,
+    sizeInteriorSqm: 85, balconiesSqm: 1, gardenSqm: 106.78, beds: 2, baths: 2,
     parking: '1 spot included', floorLabel: 'Ground & 1st floor',
     features: ['Duplex layout', 'Private garden', 'Parking & storage', 'Full-height glazing'],
     images: [P + 'd1-living.jpg', P + 'd1-bedroom.jpg', P + 'd1-kitchen.jpg', P + 'd1-bathroom.jpg'],
@@ -167,7 +171,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
   {
     id: 'apt_palmiras_d2', buildingSlug: 'palmiras-16', slug: 'duplex-d2', title: 'Duplex D2',
     status: 'available', price: 780000, unitType: 'Duplex',
-    sizeInteriorSqm: 98.9, balconiesSqm: 37.05, beds: 3, baths: 2,
+    sizeInteriorSqm: 109, balconiesSqm: 42, beds: 3, baths: 2,
     parking: '1 spot included', floorLabel: '1st & 2nd floor',
     features: ['Duplex layout', 'Generous balconies', 'Master en-suite', 'Parking & storage'],
     images: [P + 'd2-living.jpg', P + 'd2-bedroom.jpg', P + 'd2-bathroom.jpg'],
@@ -179,7 +183,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
   {
     id: 'apt_palmiras_d3', buildingSlug: 'palmiras-16', slug: 'simplex-d3', title: 'Simplex D3',
     status: 'available', price: 565000, unitType: 'Simplex',
-    sizeInteriorSqm: 75.35, balconiesSqm: 18.87, beds: 2, baths: 1,
+    sizeInteriorSqm: 75, balconiesSqm: 18, beds: 2, baths: 1,
     parking: '1 spot included', floorLabel: '3rd floor',
     features: ['Single-level layout', 'Generous balconies', 'Bright open plan', 'Parking & storage'],
     images: [P + 'd3-d4-living.jpg', P + 'd3-d4-bedroom.jpg', P + 'd3-d4-kitchen.jpg', P + 'd3-d4-bathroom.jpg'],
@@ -191,7 +195,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
   {
     id: 'apt_palmiras_d4', buildingSlug: 'palmiras-16', slug: 'simplex-d4', title: 'Simplex D4',
     status: 'sold', price: 535000, unitType: 'Simplex',
-    sizeInteriorSqm: 76.96, balconiesSqm: 18.87, beds: 2, baths: 1,
+    sizeInteriorSqm: 77, balconiesSqm: 22, beds: 2, baths: 1,
     parking: '1 spot included', floorLabel: '4th floor',
     features: ['Single-level layout', 'Generous balconies', 'Elevated views', 'Parking & storage'],
     images: [P + 'd3-d4-living.jpg', P + 'd3-d4-bedroom.jpg', P + 'd3-d4-kitchen.jpg', P + 'd3-d4-bathroom.jpg'],
@@ -209,7 +213,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 59, balconiesSqm: 9, beds: 1, baths: 2, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '1st & 2nd floor',
     features: ['Two-level maisonette', 'Open-plan living & kitchen', 'Private balcony', 'Energy Class A'],
-    images: [], floorPlans: [G + 'plan-a1.jpg'],
+    images: GAZI_DUPLEX_INT, floorPlans: [G + 'plan-a1.jpg'],
     description:
       'A 59 m\u00b2 duplex maisonette across two levels: an open-plan living, kitchen and dining area ' +
       'opening to a private balcony below, with a bedroom and bathroom on the upper floor.',
@@ -220,7 +224,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 48, balconiesSqm: 8, beds: 1, baths: 2, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '1st & 2nd floor',
     features: ['Two-level maisonette', 'Open-plan living & kitchen', 'Private balcony', 'Energy Class A'],
-    images: [G + 'a2-living.jpg', G + 'a2-hallway.jpg', G + 'a2-balcony.jpg'], floorPlans: [G + 'plan-a2.jpg'],
+    images: GAZI_DUPLEX_INT, floorPlans: [G + 'plan-a2.jpg'],
     description:
       'A 48 m\u00b2 two-level duplex loft with an open living-kitchen-dining space and private balcony ' +
       'below, and a bedroom and bathroom on the upper floor.',
@@ -231,7 +235,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 68, balconiesSqm: 13, beds: 1, baths: 2, parking: '1 spot included',
     floorLabel: '1st & 2nd floor',
     features: ['Two-level maisonette', 'Largest A-type loft', 'Private balcony', 'Parking included'],
-    images: [G + 'a3-living.jpg', G + 'a3-kitchen.jpg', G + 'a3-bedroom.jpg', G + 'a3-balcony.jpg'], floorPlans: [G + 'plan-a3.jpg'],
+    images: GAZI_DUPLEX_INT, floorPlans: [G + 'plan-a3.jpg'],
     description:
       'The largest duplex loft at 68 m\u00b2, arranged over two levels with generous living space, a ' +
       'private balcony, and an upper-floor bedroom and bathroom. Parking spot included.',
@@ -242,7 +246,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 43, balconiesSqm: 26, beds: 1, baths: 1, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '3rd floor',
     features: ['Single-level layout', 'Wraparound 26 m\u00b2 balcony', 'Open-plan living', 'Energy Class A'],
-    images: [G + 'c1-living.jpg', G + 'c1-bedroom.jpg', G + 'c1-balcony.jpg'], floorPlans: [G + 'plan-c1.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-c1.jpg'],
     description:
       'A 43 m\u00b2 one-bedroom suite on the third floor with an open-plan layout and a wraparound ' +
       '26 m\u00b2 balcony running along both the living room and the bedroom.',
@@ -253,7 +257,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 43, balconiesSqm: 13, beds: 1, baths: 1, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '3rd floor',
     features: ['Single-level layout', 'Open-plan living & kitchen', 'Private balcony', 'Energy Class A'],
-    images: [], floorPlans: [G + 'plan-c2.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-c2.jpg'],
     description: 'A 43 m\u00b2 one-bedroom third-floor suite with an open-plan living-kitchen-dining area and private balcony.',
   },
   {
@@ -262,7 +266,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 39, balconiesSqm: 8, beds: 1, baths: 1, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '3rd floor',
     features: ['Single-level layout', 'Open-plan living', 'Private balcony', 'Energy Class A'],
-    images: [G + 'c3-kitchen.jpg', G + 'c3-bedroom.jpg'], floorPlans: [G + 'plan-c3.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-c3.jpg'],
     description: 'A 39 m\u00b2 one-bedroom third-floor suite with an efficient open-plan layout and a private balcony.',
   },
   {
@@ -271,7 +275,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 85, balconiesSqm: 35, beds: 2, baths: 2, parking: '1 spot included',
     floorLabel: '4th floor',
     features: ['Largest suite', 'Two bedrooms, two baths', 'Expansive 35 m\u00b2 balcony', 'Parking included'],
-    images: [G + 'd1-living.jpg', G + 'd1-balcony.jpg'], floorPlans: [G + 'plan-d1.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-d1.jpg'],
     description:
       'An 85 m\u00b2 two-bedroom residence on the fourth floor \u2014 the building\u2019s largest suite \u2014 ' +
       'with two bathrooms, an open-plan living area, and an expansive 35 m\u00b2 balcony. Parking included.',
@@ -282,7 +286,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 36, balconiesSqm: 8, beds: 1, baths: 1, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '4th floor',
     features: ['Single-level layout', 'Open-plan living', 'Private balcony', 'Energy Class A'],
-    images: [G + 'd2-kitchen.jpg', G + 'd2-bedroom.jpg'], floorPlans: [G + 'plan-d2.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-d2.jpg'],
     description: 'A 36 m\u00b2 one-bedroom fourth-floor suite with an open-plan layout and a private balcony.',
   },
   {
@@ -291,7 +295,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 66, balconiesSqm: 32, beds: 2, baths: 2, parking: '1 spot included',
     floorLabel: '5th floor',
     features: ['Two bedrooms, two baths', 'Generous 32 m\u00b2 balcony', 'Open-plan living', 'Parking included'],
-    images: [G + 'e1-living.jpg', G + 'e1-bedroom.jpg'], floorPlans: [G + 'plan-e1.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-e1.jpg'],
     description:
       'A 66 m\u00b2 two-bedroom fifth-floor residence with two bathrooms, open-plan living, and a ' +
       'generous 32 m\u00b2 balcony. Parking included.',
@@ -302,7 +306,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 36, balconiesSqm: 8, beds: 1, baths: 1, parking: 'Optional (+\u20AC25,000)',
     floorLabel: '5th floor',
     features: ['Single-level layout', 'Open-plan living', 'Private balcony', 'Energy Class A'],
-    images: [G + 'e2-kitchen.jpg', G + 'e2-bedroom.jpg'], floorPlans: [G + 'plan-e2.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-e2.jpg'],
     description: 'A 36 m\u00b2 one-bedroom fifth-floor suite with an open-plan layout and a private balcony.',
   },
   {
@@ -311,7 +315,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 48, balconiesSqm: 43, beds: 2, baths: 1, parking: '1 spot included',
     floorLabel: '6th floor',
     features: ['Two bedrooms', 'Large 43 m\u00b2 terrace', 'Athens views', 'Parking included'],
-    images: [], floorPlans: [G + 'plan-f1.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-f1.jpg'],
     description:
       'A 48 m\u00b2 two-bedroom suite on the sixth floor with a large 43 m\u00b2 terrace and open Athens views. Parking included.',
   },
@@ -321,7 +325,7 @@ const rawApartments: Omit<Apartment, 'priceText'>[] = [
     sizeInteriorSqm: 47, balconiesSqm: 9, beds: 1, baths: 1, parking: '1 spot included',
     floorLabel: '7th floor (top)',
     features: ['Top-floor suite', 'Private balcony', 'Open Athens views', 'Parking included'],
-    images: [], floorPlans: [G + 'plan-h1.jpg'],
+    images: GAZI_URBAN_INT, floorPlans: [G + 'plan-h1.jpg'],
     description:
       'A 47 m\u00b2 one-bedroom suite on the seventh (top) floor with a private balcony and open Athens views. Parking included.',
   },
